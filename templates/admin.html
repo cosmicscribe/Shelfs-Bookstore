@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-slate-900 mb-8">Admin Dashboard</h1>
+    
+    <div class="grid md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="text-amber-600 text-3xl mb-2"><i class="fas fa-rupee-sign"></i></div>
+            <div class="text-3xl font-bold text-slate-900">₹{{ "%.2f"|format(total_revenue) }}</div>
+            <div class="text-slate-600">Total Revenue</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="text-amber-600 text-3xl mb-2"><i class="fas fa-shopping-bag"></i></div>
+            <div class="text-3xl font-bold text-slate-900">{{ total_orders }}</div>
+            <div class="text-slate-600">Total Orders</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="text-amber-600 text-3xl mb-2"><i class="fas fa-book"></i></div>
+            <div class="text-3xl font-bold text-slate-900">{{ total_books }}</div>
+            <div class="text-slate-600">Books in Catalog</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="text-amber-600 text-3xl mb-2"><i class="fas fa-users"></i></div>
+            <div class="text-3xl font-bold text-slate-900">{{ total_users }}</div>
+            <div class="text-slate-600">Registered Users</div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">Sales Analytics</h2>
+        
+        <form method="GET" action="{{ url_for('admin_dashboard') }}" class="mb-6 p-4 bg-slate-50 rounded-lg">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Start Date</label>
+                    <input type="date" name="start_date" value="{{ start_date }}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">End Date</label>
+                    <input type="date" name="end_date" value="{{ end_date }}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Group By</label>
+                    <select name="frequency" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                        <option value="Daily" {% if frequency == 'Daily' %}selected{% endif %}>Daily</option>
+                        <option value="Monthly" {% if frequency == 'Monthly' %}selected{% endif %}>Monthly</option>
+                        <option value="Yearly" {% if frequency == 'Yearly' %}selected{% endif %}>Yearly</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                        <i class="fas fa-filter mr-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <canvas id="salesChart" class="w-full" style="max-height: 400px;"></canvas>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">Upload New Book</h2>
+        <form method="POST" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data" class="space-y-4">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Title</label>
+                    <input type="text" name="title" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Author</label>
+                    <input type="text" name="author" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Price (₹)</label>
+                    <input type="number" name="price" step="0.01" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Stock</label>
+                    <input type="number" name="stock" value="50" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Category</label>
+                    <input type="text" name="category" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Tag (Optional)</label>
+                    <select name="tag" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900">
+                        <option value="">No Tag</option>
+                        <option value="Limited Edition 💎">Limited Edition 💎</option>
+                        <option value="Best Seller 🔥">Best Seller 🔥</option>
+                        <option value="Shelfs Choice 🏆">Shelfs Choice 🏆</option>
+                        <option value="New Arrival ✨">New Arrival ✨</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Brief Description (Optional)</label>
+                    <textarea name="brief_description" rows="2" maxlength="255" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-600 bg-white text-slate-900" placeholder="A short description of the book (max 255 characters)"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">Cover Image</label>
+                    <input type="file" name="cover" accept="image/*" class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-900 mb-2">PDF File</label>
+                    <input type="file" name="pdf" accept=".pdf" class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white text-slate-900">
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg transition">
+                Upload Book
+            </button>
+        </form>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">Order Management</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-slate-900">Order ID</th>
+                        <th class="px-4 py-3 text-left text-slate-900">Customer</th>
+                        <th class="px-4 py-3 text-left text-slate-900">Amount</th>
+                        <th class="px-4 py-3 text-left text-slate-900">Date</th>
+                        <th class="px-4 py-3 text-left text-slate-900">Status</th>
+                        <th class="px-4 py-3 text-left text-slate-900">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr class="border-b border-slate-200">
+                        <td class="px-4 py-3 text-slate-900">#{{ order.id }}</td>
+                        <td class="px-4 py-3 text-slate-900">{{ order.user.username }}</td>
+                        <td class="px-4 py-3 text-slate-900">₹{{ "%.2f"|format(order.total_amount) }}</td>
+                        <td class="px-4 py-3 text-slate-900">{{ order.date.strftime('%Y-%m-%d') }}</td>
+                        <td class="px-4 py-3">
+                            {% if order.status == 'Pending' %}
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Pending</span>
+                            {% elif order.status == 'Approved' %}
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Approved</span>
+                            {% elif order.status == 'Declined' %}
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">Declined</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if order.status == 'Pending' %}
+                            <a href="{{ url_for('approve_order', order_id=order.id) }}" 
+                               class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm mr-2">
+                                Approve
+                            </a>
+                            <a href="{{ url_for('decline_order', order_id=order.id) }}" 
+                               class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                                Decline
+                            </a>
+                            {% else %}
+                            <span class="text-slate-500 text-sm">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Inventory Management</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-slate-900">Title</th>
+                            <th class="px-4 py-3 text-left text-slate-900">Stock</th>
+                            <th class="px-4 py-3 text-left text-slate-900">Price</th>
+                            <th class="px-4 py-3 text-left text-slate-900">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                        <tr class="border-b border-slate-200">
+                            <td class="px-4 py-3 text-slate-900">{{ book.title }}</td>
+                            <td class="px-4 py-3 text-slate-900">
+                                {% if book.stock <= 5 %}
+                                <span class="text-red-600 font-bold">{{ book.stock }}</span>
+                                {% else %}
+                                {{ book.stock }}
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-slate-900">₹{{ book.price }}</td>
+                            <td class="px-4 py-3">
+                                <a href="{{ url_for('delete_book', book_id=book.id) }}" 
+                                   onclick="return confirm('Are you sure you want to delete {{ book.title }}?')"
+                                   class="text-red-600 hover:text-red-700 text-sm">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">User Management</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-slate-900">Username</th>
+                            <th class="px-4 py-3 text-left text-slate-900">Email</th>
+                            <th class="px-4 py-3 text-left text-slate-900">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="border-b border-slate-200">
+                            <td class="px-4 py-3 text-slate-900">{{ user.username }}</td>
+                            <td class="px-4 py-3 text-slate-900">{{ user.email }}</td>
+                            <td class="px-4 py-3">
+                                <a href="{{ url_for('delete_user', user_id=user.id) }}" 
+                                   onclick="return confirm('Are you sure you want to delete user {{ user.username }}?')"
+                                   class="text-red-600 hover:text-red-700 text-sm">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const labels = {{ labels|tojson }};
+    const values = {{ values|tojson }};
+    const frequency = '{{ frequency }}';
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue (' + frequency + ') (₹)',
+                data: values,
+                borderColor: '#d97706',
+                backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true
+                },
+                title: {
+                    display: true,
+                    text: 'Sales Analytics - ' + frequency + ' View'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
