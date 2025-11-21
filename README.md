@@ -3,7 +3,7 @@
 **Shelfs** is a full-stack E-Commerce application built with Python (Flask) and SQLite. It features a "Warm Library" aesthetic, a hybrid inventory system, and a comprehensive Admin Dashboard with visual analytics.
 
 ## 🚀 Live Demo
-[Click here ](https://anirban22.pythonanywhere.com/)
+   [Click here😁](https://anirban22.pythonanywhere.com/)
 
 ## ✨ Features
 
