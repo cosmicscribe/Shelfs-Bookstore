@@ -4,6 +4,16 @@
 
 ## 🚀 Live Demo
    [Click Here😁](https://anirban22.pythonanywhere.com/)
+   
+## 🔐 Demo Credentials
+
+To explore the **Admin Dashboard** features (Analytics, Inventory, Order Management):
+* **Username:** `admin`
+* **Password:** `admin123`
+
+To explore the **Customer Experience** (Shopping Cart, Checkout):
+* **Username:** `rohit`
+* **Password:** `user123`
 
 ## ✨ Features
 
